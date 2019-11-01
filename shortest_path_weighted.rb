@@ -7,6 +7,10 @@ class Node
     @parent = parent
   end
 
+  def >(other)
+    @cost > other.cost
+  end
+
   def <(other)
     @cost < other.cost 
   end
@@ -31,8 +35,9 @@ class PriorityQueue
 
   def pop
     @queue.sort!
+    node = @queue.delete_at(0)
     @size -= 1
-    @queue.delete_at(0)
+    node
   end
 
   def size
@@ -40,54 +45,44 @@ class PriorityQueue
   end
 end
 
-def shortest_path(last_node)
-  weights = []
-  current = last_node.parent
-  while current.parent
-    weights << current.cost 
-    current = current.parent
-  end
-  return weights
-end
-
 def shortest_path_wg(matrix)
-  start = Node.new(0)
-  frontier = PriorityQueue.new
-  frontier << start
-  explored = {}
-  frontier_nodes = {}
+    start = Node.new(0)
+    frontier = PriorityQueue.new
+    frontier << start
+    explored = {}
+    frontier_nodes = {start.key => start}
+    costs = []
 
-  while frontier.size > 0
-    current = frontier.pop
-    p current
-    neighbors = matrix[current.key]
-    p neighbors
+    while frontier.size > 0
+        current = frontier.pop
+        neighbors = matrix[current.key]
+        neighbors.each_with_index do |cost, key|
+            next if cost.zero?
+            path_cost = current.cost + cost
+            node = Node.new(key, path_cost, current)
 
-    neighbors.each_with_index do |cost, key|
-        next if cost.zero?
-        p "#{cost}, #{key}"
-        path_cost = current.cost + cost
-        node = Node.new(key, path_cost, current.key)
 
-        visited = explored.fetch(key, nil)
+            visited = explored.fetch(key, nil) # check explored
+            explored[key] = node if visited && visited > node # shorter
+            next if visited # skip if visited
 
-        if visited 
-            explored[key] = node if node < visited
-            next
+            n = frontier_nodes.fetch(key, nil) # check frontier
+            frontier_nodes[key] = node if n && n > node # shorter
+            next if n # skip if already on frontier
+            frontier << node # else add to frontier
+            frontier_nodes[key] = node # and track node
         end
 
-        n = frontier_nodes.fetch(key, nil)
-        if n && node <= n
-            frontier_nodes[key] = node 
-        else
-            frontier << node
-        end 
+        explored[current.key] = current
+
     end
 
-    explored[current.key] = current
-  end
-  p explored
-  return shortest_path(explored[5])
+    # get costs to all paths from start node
+    (matrix.size).times do |i|
+       cost = frontier_nodes[i].cost
+       costs << cost
+    end
+  return costs
 end
 
 p shortest_path_wg([
