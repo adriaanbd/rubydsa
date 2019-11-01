@@ -5,7 +5,7 @@ def graph_cycle?(graph, source=nil)
     nodes += graph[key]
   end
 
-  nodes.uniq == nodes
+  nodes.uniq != nodes
 end
 
 puts graph_cycle?({
@@ -25,4 +25,13 @@ puts graph_cycle?({
   3=>[2], 
   4=>[2]
 })
-# => false
+# => true
+
+puts graph_cycle?({
+  0=>[1], 
+  1=>[3, 4], 
+  2=>[5, 6], 
+  3=>[7, 8]
+})
+
+#=> false
