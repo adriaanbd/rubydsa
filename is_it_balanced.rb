@@ -26,6 +26,7 @@ def height(node)
   else
     left = height(node.left)
     right = height(node.right)
+    return false if left == false || right == false
     difference = left - right
     return false if difference.abs > 1
     height = left >= right ? left + 1 : right + 1 
@@ -38,6 +39,9 @@ def balanced_tree?(array)
   return true if height(root)
   false
 end
+
+puts balanced_tree?([1, 2, 3, 4, 0, 0, 5, 6, 0, 0, 0, 0, 0, 0, 7])
+# => false
 
 puts balanced_tree?([1, 2, 0, 3, 4, 0, 0])
 # => false
