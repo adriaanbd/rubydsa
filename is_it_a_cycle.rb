@@ -1,11 +1,19 @@
+# dfs using stack, naive approach
 def graph_cycle?(graph, source=nil)
-  nodes = []
-  keys = graph.keys 
-  keys.each do |key|
-    nodes += graph[key]
+  frontier = [graph.keys.first]
+  visited = []
+  while frontier
+    break if frontier.empty? 
+    current = frontier.pop
+    neighbors = graph.fetch(current, nil)
+    next if neighbors.nil?
+    neighbors.each do |neighbor|
+      frontier << neighbor unless visited.include?(neighbor)
+    end
+    visited << current
   end
 
-  nodes.uniq != nodes
+  visited.uniq != visited
 end
 
 puts graph_cycle?({
@@ -25,7 +33,7 @@ puts graph_cycle?({
   3=>[2], 
   4=>[2]
 })
-# => true
+# => false
 
 puts graph_cycle?({
   0=>[1], 
